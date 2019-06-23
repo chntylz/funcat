@@ -1,0 +1,112 @@
+from funcat import *
+from funcat.data.aaron_backend import AaronDataBackend
+set_data_backend(AaronDataBackend())
+T("20190614")
+S("300750")
+C
+
+
+import tushare as ts
+import pandas as pd
+import  psycopg2
+from time import clock
+
+conn = psycopg2.connect(database="usr", user="usr", password="usr", host="127.0.0.1", port="5432")
+cur = conn.cursor()
+order_book_id="300750"
+#sql_temp="select * from (select * from hdata_d_table where stock_code='000922' order by record_date desc LIMIT 5) as tbl order by record_date asc;"
+sql_temp="select * from (select * from hdata_d_table where stock_code="+"\'"+order_book_id+"\' order by record_date desc LIMIT 100 ) as tbl order by record_date asc;"
+#sql_temp="select * from hdata_d_table where stock_code="+"\'"+order_book_id+"\';"
+print("sql_temp=%s"%(sql_temp))
+cur.execute(sql_temp)
+rows = cur.fetchall()
+
+conn.commit()
+conn.close()
+
+#dataframe_cols=[tuple[0] for tuple in cur.description]#列名和数据库列一致
+dataframe_cols=['date', 'open', 'close', 'high', 'low', 'volume', 'code']
+df = pd.DataFrame(rows, columns=dataframe_cols)
+df["date"]=df["date"].apply(lambda x: str(x))
+df["datetime"] = df["date"].apply(lambda x: int(x.replace("-", "")) * 1000000)
+del df["code"]
+arr = df.to_records()
+
+
+
+df2=ts.get_k_data("300750", '2019-01-11', '2019-06-13', 'D', 'hfq', False, 3, 0.001)
+df2["datetime"] = df2["date"].apply(lambda x: int(x.replace("-", "")) * 1000000)
+del df2["code"]
+arr2 = df2.to_records()
+
+arr[1]
+arr2[2]
+
+df.head(2)
+df2.head(2)
+
+
+from funcat import *
+from funcat.data.tushare_backend import TushareDataBackend
+set_data_backend(TushareDataBackend())
+T("20190614")
+S("300750")
+C
+
+
+
+
+code,代码
+name,名称
+industry,所属行业
+area,地区
+pe,市盈率
+outstanding,流通股本(亿)
+totals,总股本(亿)
+totalAssets,总资产(万)
+liquidAssets,流动资产
+fixedAssets,固定资产
+reserved,公积金
+reservedPerShare,每股公积金
+esp,每股收益
+bvps,每股净资
+pb,市净率
+timeToMarket,上市日期
+undp,未分利润
+perundp, 每股未分配
+rev,收入同比(%)
+profit,利润同比(%)
+gpr,毛利率(%)
+npr,净利润率(%)
+holders,股东人数
+调用方法：
+
+import tushare as ts
+
+ts.get_stock_basics()
+--------------------------------------------------------------------------------------------------------
+一次性获取当前交易所有股票的行情数据（如果是节假日，即为上一交易日，结果显示速度取决于网速）
+
+import tushare as ts
+
+ts.get_today_all()
+返回值说明：
+
+code：代码
+name:名称
+changepercent:涨跌幅
+trade:现价
+open:开盘价
+high:最高价
+low:最低价
+settlement:昨日收盘价
+volume:成交量
+turnoverratio:换手率
+amount:成交金额
+per:市盈率
+pb:市净率
+mktcap:总市值
+nmc:流通市值
+
+dtype=[('index', '<i8'), ('date', 'O'), ('open', '<f8'), ('close', '<f8'), ('high', '<f8'), ('low', '<f8'), ('volume', '<f8'), ('datetime', '<i8')])
+dtype=[('index', '<i8'), ('date', 'O'), ('open', '<f8'), ('close', '<f8'), ('high', '<f8'), ('low', '<f8'), ('volume', '<f8'), ('datetime', '<i8')])
