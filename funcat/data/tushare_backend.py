@@ -6,13 +6,23 @@ from cached_property import cached_property
 from .backend import DataBackend
 from ..utils import lru_cache, get_str_date_from_int, get_int_date
 
+def debug(message):
+    import sys
+    import inspect
+    callerframerecord = inspect.stack()[1]
+    frame = callerframerecord[0]
+    info = inspect.getframeinfo(frame)
+    print(info.filename, 'func=%s' % info.function, 'line=%s:' % info.lineno, message)
+
 
 class TushareDataBackend(DataBackend):
+
 
     @cached_property
     def ts(self):
         try:
             import tushare as ts
+            debug("test")
             return ts
         except ImportError:
             print("-" * 50)
@@ -22,14 +32,17 @@ class TushareDataBackend(DataBackend):
 
     @cached_property
     def stock_basics(self):
+        debug("test")
         return self.ts.get_stock_basics()
 
     @cached_property
     def code_name_map(self):
         code_name_map = self.stock_basics[["name"]].to_dict()["name"]
+        debug("test")
         return code_name_map
 
     def convert_code(self, order_book_id):
+        debug("test")
         return order_book_id.split(".")[0]
 
     @lru_cache(maxsize=4096)
@@ -43,6 +56,7 @@ class TushareDataBackend(DataBackend):
         """
         start = get_str_date_from_int(start)
         end = get_str_date_from_int(end)
+        print("start=%s, end=%s" % (start, end))
         code = self.convert_code(order_book_id)
         is_index = False
         if ((order_book_id.startswith("0") and order_book_id.endswith(".XSHG")) or
@@ -57,6 +71,8 @@ class TushareDataBackend(DataBackend):
         # else W M
 
         df = self.ts.get_k_data(code, start=start, end=end, index=is_index, ktype=ktype)
+        #print(df.head(5))
+        debug("test")
 
         if freq[-1] == "m":
             df["datetime"] = df.apply(
@@ -66,7 +82,7 @@ class TushareDataBackend(DataBackend):
 
         del df["code"]
         arr = df.to_records()
-
+        #print(arr)
         return arr
 
     @lru_cache()
@@ -79,6 +95,7 @@ class TushareDataBackend(DataBackend):
             (code + ".XSHG" if code.startswith("6") else code + ".XSHE")
             for code in code_list
         ]
+        debug("test")
         return order_book_id_list
 
     @lru_cache()
@@ -92,6 +109,7 @@ class TushareDataBackend(DataBackend):
         end = get_str_date_from_int(end)
         df = self.ts.get_k_data("000001", index=True, start=start, end=end)
         trading_dates = [get_int_date(date) for date in df.date.tolist()]
+        debug("test")
         return trading_dates
 
     @lru_cache(maxsize=4096)
@@ -102,4 +120,5 @@ class TushareDataBackend(DataBackend):
         :rtype: str
         """
         code = self.convert_code(order_book_id)
+        debug("test")
         return "{}[{}]".format(order_book_id, self.code_name_map.get(code))
