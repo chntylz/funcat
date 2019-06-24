@@ -5,6 +5,7 @@ from __future__ import division
 
 import six
 import numpy as np
+import sys
 
 from .utils import wrap_formula_exc, FormulaException
 from .context import ExecutionContext
@@ -15,20 +16,30 @@ def get_bars(freq):
     current_date = ExecutionContext.get_current_date()
     order_book_id = ExecutionContext.get_current_security()
     start_date = ExecutionContext.get_start_date()
-
+    # print("line number: " + str(sys._getframe().f_lineno) )
+    
     try:
+        # print("aaron debug order_book_id=%s" %(order_book_id))
         bars = data_backend.get_price(order_book_id, start=start_date, end=current_date, freq=freq)
+        #print(bars)
     except KeyError:
         return np.array([])
 
     # return empty array direct
     if len(bars) == 0:
+        print("Error len(bars) is 0")
         return bars
+
+    # print("line number: " + str(sys._getframe().f_lineno) )
 
     # if security is suspend, just skip
     if data_backend.skip_suspended and bars["datetime"][-1] // 1000000 != current_date and freq not in ("W", "M"):
+        # print("line number: " + str(sys._getframe().f_lineno) )
         return np.array([])
 
+    # print("line number: " + str(sys._getframe().f_lineno) )
+
+    ##print(bars)
     return bars
 
 
@@ -74,6 +85,11 @@ class TimeSeries(object):
     @wrap_formula_exc
     def value(self):
         try:
+            #aaron
+            # print("aaron line80")
+            # print(len(self.series))
+            # print("aaron line82")
+                   	
             return self.series[-1]
         except IndexError:
             raise FormulaException("DATA UNAVAILABLE")

@@ -27,7 +27,7 @@ class AaronDataBackend(DataBackend):
     def ts(self):
         try:
             import tushare as ts
-            debug("test")
+            # debug("test")
             return ts
         except ImportError:
             print("-" * 50)
@@ -37,13 +37,13 @@ class AaronDataBackend(DataBackend):
 
     @cached_property
     def stock_basics(self):
-        debug("test")
+        #debug("test")
         return self.ts.get_stock_basics()
 
     @cached_property
     def code_name_map(self):
         code_name_map = self.stock_basics[["name"]].to_dict()["name"]
-        debug("test")
+        # debug("test")
         return code_name_map
 
     @lru_cache(maxsize=4096)
@@ -56,20 +56,20 @@ class AaronDataBackend(DataBackend):
         :returns:
         :rtype: numpy.rec.array
         """
-        debug("test")
-        print("order_book_id:%s" % (order_book_id))
+        # debug("test")
+        # print("order_book_id:%s" % (order_book_id))
         
         start = get_str_date_from_int(start)
         end = get_str_date_from_int(end)
-        print("start=%s, end=%s" % (start, end))
+        # print("start=%s, end=%s" % (start, end))
         
         conn = psycopg2.connect(database="usr", user="usr", password="usr", host="127.0.0.1", port="5432")
         cur = conn.cursor()
 
         #sql_temp="select * from (select * from hdata_d_table where stock_code='000922' order by record_date desc LIMIT 5) as tbl order by record_date asc;"
-        sql_temp="select * from (select * from hdata_d_table where stock_code="+"\'"+order_book_id+"\' order by record_date desc) as tbl order by record_date asc;"
+        sql_temp="select * from (select * from hdata_d_table where stock_code="+"\'"+order_book_id+"\'  and  record_date between "+"\'"+start+"\' and "+"\'"+end+"\' order by record_date desc) as tbl order by record_date asc;"
         #sql_temp="select * from hdata_d_table where stock_code="+"\'"+order_book_id+"\';"
-        print("sql_temp=%s"%(sql_temp))
+        # print("sql_temp=%s"%(sql_temp))
         cur.execute(sql_temp)
         rows = cur.fetchall()
 
@@ -98,7 +98,7 @@ class AaronDataBackend(DataBackend):
         """
         info = self.ts.get_stock_basics()
         code_list = info.index.sort_values().tolist()
-        debug("test")
+        # debug("test")
         return code_list
         
     @lru_cache()
@@ -112,7 +112,7 @@ class AaronDataBackend(DataBackend):
         end = get_str_date_from_int(end)
         df = self.ts.get_k_data("000001", index=True, start=start, end=end)
         trading_dates = [get_int_date(date) for date in df.date.tolist()]
-        debug("test")
+        # debug("test")
         return trading_dates
 
     @lru_cache(maxsize=4096)
@@ -122,5 +122,5 @@ class AaronDataBackend(DataBackend):
         :returns: 名字
         :rtype: str
         """
-        debug("test")
-        return "{}[{}]".format(order_book_id, self.code_name_map.get(code))
+        # debug("test")
+        return "{}[{}]".format(order_book_id, self.code_name_map.get(order_book_id))
