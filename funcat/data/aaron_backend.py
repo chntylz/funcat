@@ -78,11 +78,14 @@ class AaronDataBackend(DataBackend):
 
 
         #dataframe_cols=[tuple[0] for tuple in cur.description]#列名和数据库列一致
-        dataframe_cols=['date', 'open', 'close', 'high', 'low', 'volume', 'code']
+        #dataframe_cols=['date', 'open', 'close', 'high', 'low', 'volume', 'code']
+        dataframe_cols=['date','code', 'open', 'close', 'high', 'low', 'volume', 'amount', 'p_change']
         df = pd.DataFrame(rows, columns=dataframe_cols)
         df["date"]=df["date"].apply(lambda x: str(x))
         df["datetime"] = df["date"].apply(lambda x: int(x.replace("-", "")) * 1000000)
         del df["code"]
+        del df["amount"]
+        del df['p_change']
         arr = df.to_records()
 
 
