@@ -4,11 +4,14 @@
 import pandas as pd
 import  psycopg2
 from time import clock
+from Stocks import *
 
 from cached_property import cached_property
 
 from .backend import DataBackend
 from ..utils import lru_cache, get_str_date_from_int, get_int_date
+
+stocks=Stocks("usr","usr")
 
 def debug(message):
     import sys
@@ -38,7 +41,8 @@ class AaronDataBackend(DataBackend):
     @cached_property
     def stock_basics(self):
         #debug("test")
-        return self.ts.get_stock_basics()
+        s_df = stocks.get_all_data()
+        return s_df;
 
     @cached_property
     def code_name_map(self):
