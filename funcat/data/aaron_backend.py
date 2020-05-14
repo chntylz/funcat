@@ -4,7 +4,7 @@
 import pandas as pd
 import  psycopg2
 from time import clock
-from Stocks import *
+from funcat.data.Stocks import *
 
 from cached_property import cached_property
 
