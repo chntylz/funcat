@@ -70,10 +70,16 @@ class AaronDataBackend(DataBackend):
         
         conn = psycopg2.connect(database="usr", user="usr", password="usr", host="127.0.0.1", port="5432")
         cur = conn.cursor()
-        db_columns = "record_date , stock_code , open , close , high , low , volume ,  amount , p_change "
+        db_columns = "record_date , stock_code , open , close , high , low , volume ,\
+                amount , p_change "
         #sql_temp="select * from (select * from hdata_d_table where stock_code='000922' order by record_date desc LIMIT 5) as tbl order by record_date asc;"
         #sql_temp="select * from (select * from hdata_d_table where stock_code="+"\'"+order_book_id+"\'  and  record_date between "+"\'"+start+"\' and "+"\'"+end+"\' order by record_date desc) as tbl order by record_date asc;"
-        sql_temp="select " + db_columns +  "from (select " + db_columns + " from hdata_d_table where stock_code="+"\'"+order_book_id+"\'  and  record_date between "+"\'"+start+"\' and "+"\'"+end+"\' order by record_date desc) as tbl order by record_date asc;"
+        sql_temp="select " + db_columns +  "from \
+                (select " + db_columns + " from hdata_d_table where stock_code="\
+                +"\'"+order_book_id+"\'  and  \
+                record_date between "+"\'"+start+"\' and "+"\'"+end+"\' \
+                order by record_date desc\
+                ) as tbl order by record_date asc;"
         #sql_temp="select * from hdata_d_table where stock_code="+"\'"+order_book_id+"\';"
         # print("sql_temp=%s"%(sql_temp))
         cur.execute(sql_temp)
