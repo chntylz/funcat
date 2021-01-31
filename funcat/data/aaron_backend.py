@@ -62,26 +62,25 @@ class AaronDataBackend(DataBackend):
         :rtype: numpy.rec.array
         """
         # debug("test")
-        # print("order_book_id:%s" % (order_book_id))
+        print("order_book_id:%s" % (order_book_id))
         
         start = get_str_date_from_int(start)
         end = get_str_date_from_int(end)
-        # print("start=%s, end=%s" % (start, end))
+        print("start=%s, end=%s" % (start, end))
         
         conn = psycopg2.connect(database="usr", user="usr", password="usr", host="127.0.0.1", port="5432")
         cur = conn.cursor()
         db_columns = "record_date , stock_code , open , close , high , low , volume ,\
-                amount , p_change "
-        #sql_temp="select * from (select * from hdata_d_table where stock_code='000922' order by record_date desc LIMIT 5) as tbl order by record_date asc;"
-        #sql_temp="select * from (select * from hdata_d_table where stock_code="+"\'"+order_book_id+"\'  and  record_date between "+"\'"+start+"\' and "+"\'"+end+"\' order by record_date desc) as tbl order by record_date asc;"
+                amount , percent "
+
         sql_temp="select " + db_columns +  "from \
-                (select " + db_columns + " from hdata_d_table where stock_code="\
+                (select " + db_columns + " from xq_d_table where stock_code="\
                 +"\'"+order_book_id+"\'  and  \
                 record_date between "+"\'"+start+"\' and "+"\'"+end+"\' \
                 order by record_date desc\
                 ) as tbl order by record_date asc;"
         #sql_temp="select * from hdata_d_table where stock_code="+"\'"+order_book_id+"\';"
-        # print("sql_temp=%s"%(sql_temp))
+        print("sql_temp=%s"%(sql_temp))
         cur.execute(sql_temp)
         rows = cur.fetchall()
 
@@ -91,13 +90,13 @@ class AaronDataBackend(DataBackend):
 
         #dataframe_cols=[tuple[0] for tuple in cur.description]#列名和数据库列一致
         #dataframe_cols=['date', 'open', 'close', 'high', 'low', 'volume', 'code']
-        dataframe_cols=['date','code', 'open', 'close', 'high', 'low', 'volume', 'amount', 'p_change']
+        dataframe_cols=['date','code', 'open', 'close', 'high', 'low', 'volume', 'amount', 'percent']
         df = pd.DataFrame(rows, columns=dataframe_cols)
         df["date"]=df["date"].apply(lambda x: str(x))
         df["datetime"] = df["date"].apply(lambda x: int(x.replace("-", "")) * 1000000)
         del df["code"]
         del df["amount"]
-        del df['p_change']
+        del df['percent']
         arr = df.to_records()
 
 
