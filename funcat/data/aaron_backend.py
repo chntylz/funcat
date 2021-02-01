@@ -14,6 +14,8 @@ from ..utils import lru_cache, get_str_date_from_int, get_int_date
 
 stocks=Stocks("usr","usr")
 
+dbg = 0
+
 def debug(message):
     import sys
     import inspect
@@ -62,11 +64,19 @@ class AaronDataBackend(DataBackend):
         :rtype: numpy.rec.array
         """
         # debug("test")
-        print("order_book_id:%s" % (order_book_id))
+        if dbg:
+            print("order_book_id:%s" % (order_book_id))
+
+        if order_book_id[0:1] == '6':
+            order_book_id = 'SH' + order_book_id
+        else:
+            order_book_id = 'SZ' + order_book_id
         
         start = get_str_date_from_int(start)
         end = get_str_date_from_int(end)
-        print("start=%s, end=%s" % (start, end))
+
+        if dbg:
+            print("start=%s, end=%s" % (start, end))
         
         conn = psycopg2.connect(database="usr", user="usr", password="usr", host="127.0.0.1", port="5432")
         cur = conn.cursor()
@@ -80,7 +90,8 @@ class AaronDataBackend(DataBackend):
                 order by record_date desc\
                 ) as tbl order by record_date asc;"
         #sql_temp="select * from hdata_d_table where stock_code="+"\'"+order_book_id+"\';"
-        print("sql_temp=%s"%(sql_temp))
+        if dbg:
+            print("sql_temp=%s"%(sql_temp))
         cur.execute(sql_temp)
         rows = cur.fetchall()
 
