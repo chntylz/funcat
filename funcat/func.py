@@ -176,6 +176,22 @@ def every(cond, n):
 
 
 @handle_numpy_warning
+def exist(cond, n):
+    return count(cond, n) >= 1
+
+
+@handle_numpy_warning
+def last(cond, a, b):
+    if a == 0:
+        return every(Ref(cond, b), len(cond) - b)
+
+    if a < b:
+        raise FormulaException("a > b")
+
+    return every(Ref(cond, b), a-b+1)
+
+
+@handle_numpy_warning
 def hhv(s, n):
     # TODO lazy compute
     series = s.series
@@ -206,6 +222,36 @@ def llv(s, n):
 
 
 @handle_numpy_warning
+def hhvbars(s, n):
+    # TODO lazy compute
+    series = s.series
+    size = len(s.series) - n
+    try:
+        result = np.full(size, 0, dtype=np.float64)
+    except ValueError as e:
+        raise FormulaException(e)
+
+    result = np.argmax(rolling_window(series, n), 1)
+
+    return NumericSeries(result)
+
+
+@handle_numpy_warning
+def llvbars(s, n):
+    # TODO lazy compute
+    series = s.series
+    size = len(s.series) - n
+    try:
+        result = np.full(size, 0, dtype=np.float64)
+    except ValueError as e:
+        raise FormulaException(e)
+
+    result = np.argmin(rolling_window(series, n), 1)
+
+    return NumericSeries(result)
+
+
+@handle_numpy_warning
 def iif(condition, true_statement, false_statement):
     series1 = get_series(true_statement)
     series2 = get_series(false_statement)
@@ -215,3 +261,19 @@ def iif(condition, true_statement, false_statement):
     series[cond_series] = series1[cond_series]
 
     return NumericSeries(series)
+
+
+@handle_numpy_warning
+def barslast(statement):
+    series = get_series(statement)
+    size = len(series)
+    end = size
+    begin = size - 1
+    result = np.full(size, 1e16, dtype=np.int64)
+    for s in series[::-1]:
+        if s:
+            result[begin:end] = range(0, end - begin)
+            end = begin
+        begin -= 1
+
+    return NumericSeries(result)

@@ -19,6 +19,11 @@ from .func import (
     llv,
     Ref,
     iif,
+    barslast,
+    hhvbars,
+    llvbars,
+    exist,
+    last,
 )
 from .context import (
     symbol,
@@ -55,10 +60,15 @@ REF = Ref
 MIN = minimum
 MAX = maximum
 EVERY = every
+EXIST = exist
 COUNT = count
 HHV = hhv
 LLV = llv
+HHVBARS = hhvbars
+LLVBARS = llvbars
+LAST = last
 IF = IIF = iif
+BARSLAST=barslast
 
 S = set_current_security
 T = set_current_date
@@ -87,9 +97,14 @@ __all__ = [
     "MIN",
     "EVERY",
     "COUNT",
+    "EXIST",
     "HHV",
     "LLV",
+    "HHVBARS",
+    "LLVBARS",
+    "LAST",
     "IF", "IIF",
+    "BARSLAST",
 
     "S",
     "T",
