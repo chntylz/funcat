@@ -478,6 +478,8 @@ class HData_eastmoney_zlpm(object):
         if debug:
             print(type(df))
             print(df.head(2))
+        
+        df=df.set_index('stock_code')
     
         return df
         pass
