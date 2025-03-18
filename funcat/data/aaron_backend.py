@@ -3,16 +3,18 @@
 
 import pandas as pd
 import  psycopg2
-from time import clock
+#from time import clock
 #from Stocks import *
-from funcat.data.Stocks import *
+from funcat.data.HData_eastmoney_zlpm import *
 
 from cached_property import cached_property
 
 from .backend import DataBackend
 from ..utils import lru_cache, get_str_date_from_int, get_int_date
 
-stocks=Stocks("usr","usr")
+stocks=HData_eastmoney_zlpm("usr","usr")
+
+dbg = 0
 
 def debug(message):
     import sys
@@ -41,13 +43,16 @@ class AaronDataBackend(DataBackend):
     @cached_property
     def stock_basics(self):
         #debug("test")
-        s_df = stocks.get_all_data()
+        s_df = stocks.get_data_from_hdata()
+        if dbg:
+            debug("stock_basics %s" % s_df)
         return s_df;
 
     @cached_property
     def code_name_map(self):
-        code_name_map = self.stock_basics[["name"]].to_dict()["name"]
-        # debug("test")
+        code_name_map = self.stock_basics[["stock_name"]].to_dict()["stock_name"]
+        if dbg:
+            debug("code_name_map %s" % code_name_map)
         return code_name_map
 
     @lru_cache(maxsize=4096)

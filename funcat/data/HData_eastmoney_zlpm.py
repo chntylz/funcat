@@ -12,10 +12,28 @@ from io import StringIO
 
 debug = 0
 #debug = 1
+'''
+                stock_code varchar, 
+                record_date date,
+                stock_name varchar, 
+                close float,
+                percent float,    
+                zljlre float, 主力净流入额
+                industry varchar,
+                percent_5day float,  5日涨跌
+                percent_10day float,10日涨跌
+                zljzb_5day float,5日主力净占比
+                zljzb_10day float,10日主力净占比
+                zljzb_1day float,1日主力净占比
+                zljzb_pm_1day float, 今日排名 
+                zljzb_pm_5day float, 5日排名
+                zljzb_pm_10day float 10日排名
+ 
+'''
 
-eastmoney_cols = ' stock_code, record_date, stock_name, close, percent, industry, \
-               percent_5day, percent_10day, zljzb_5day, zljzb_10day, zljzb, \
-              zljzb_pm, zljzb_pm_5day, zljzb_pm_10day '
+
+eastmoney_cols = ' stock_code, record_date, stock_name, close, percent, zljlre, industry, percent_5day, percent_10day, \
+            zljzb_5day, zljzb_10day, zljzb_1day, zljzb_pm_1day, zljzb_pm_5day, zljzb_pm_10day ' 
 
 class HData_eastmoney_zlpm(object):
     def __init__(self,user,password):
@@ -69,14 +87,15 @@ class HData_eastmoney_zlpm(object):
                 record_date date,
                 stock_name varchar, 
                 close float,
-                percent float,
+                percent float, 
+                zljlre float,
                 industry varchar,
                 percent_5day float,
                 percent_10day float,
                 zljzb_5day float,
                 zljzb_10day float,
-                zljzb float,
-                zljzb_pm float,
+                zljzb_1day float,
+                zljzb_pm_1day float,
                 zljzb_pm_5day float,
                 zljzb_pm_10day float
                    );
@@ -161,14 +180,14 @@ class HData_eastmoney_zlpm(object):
                     str_temp+=",\'"+str(data.iloc[i,j]) + "\'"      #stock_code must be string
 
                 sql_cmd += "("+str_temp+")"
-                if i is 0:
+                if i == 0:
                     sql_cmd += ","
                 elif i % each_num == 0 or i == (length -1):
                     pass
                 else:
                     sql_cmd += ","
 
-                if i % each_num == 0 and i is not 0:
+                if i % each_num == 0 and i != 0:
                     if debug:
                         print(sql_cmd)
                     if(sql_cmd != ""):
@@ -234,14 +253,14 @@ class HData_eastmoney_zlpm(object):
                 sql_cmd.append('(')
                 sql_cmd.extend(str_temp)
                 sql_cmd.append(')')
-                if i is 0:
+                if i == 0:
                     sql_cmd.append(",")
                 elif i % each_num == 0 or i == (length -1):
                     pass
                 else:
                     sql_cmd.append(",")
 
-                if i % each_num == 0 and i is not 0:
+                if i % each_num == 0 and i != 0:
                     if debug:
                         print(sql_cmd)
                         print("--------------------------------------")
@@ -478,8 +497,6 @@ class HData_eastmoney_zlpm(object):
         if debug:
             print(type(df))
             print(df.head(2))
-        
-        df=df.set_index('stock_code')
     
         return df
         pass
